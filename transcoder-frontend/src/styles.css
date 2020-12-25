@@ -1,0 +1,33 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+  background: purple;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  font-size: 18px;
+}
+
+input {
+  border-radius: 10px;
+  border: 1px solid purple;
+  padding: 10px;
+  color: purple;
+  font-size: 18px;
+  outline: none;
+}
+
+button {
+  color: purple;
+  border-radius: 5px;
+  padding: 10px 20px;
+  color: purple;
+  font-size: 18px;
+  outline: none;
+  background: white;
+  border: 1px solid purple;
+  margin: 5px;
+}
