@@ -9,3 +9,6 @@ change other variables like transcoder pipeline Id, presets etc according to you
 ## TO DEPLOY serverless backend
 
 sls deploy --stage <STAGE>
+
+#Architectural diagram:
+![](images/Video Transcode Architectural Diagram.jpeg)
