@@ -6,7 +6,8 @@ Create AWS Elastic transcoder pipeline in AWS Console
 
 change other variables like transcoder pipeline Id, presets etc according to your required deployment parameters
 
-# Url of frontend static file deployed on s3 
+# Url of frontend static file deployed on s3
+
 http://transcoder-deployment-bucket.s3-website-us-east-1.amazonaws.com
 
 ## TO DEPLOY serverless backend
@@ -14,4 +15,4 @@ http://transcoder-deployment-bucket.s3-website-us-east-1.amazonaws.com
 sls deploy --stage <STAGE>
 
 #Architectural diagram:
-![](images/Video Transcode Architectural Diagram.jpeg)
+![](images/Video%20Transcode$20Architectural%20Diagram.jpeg)
