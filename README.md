@@ -14,5 +14,7 @@ http://transcoder-deployment-bucket.s3-website-us-east-1.amazonaws.com
 
 sls deploy --stage <STAGE>
 
-#Architectural diagram:
-![](images/Video%20Transcode$20Architectural%20Diagram.jpeg)
+# Architectural diagram:
+![Video Transcode Architectural Diagram](https://user-images.githubusercontent.com/42226841/103120502-2090bc00-46a0-11eb-97c3-b191c0581458.jpeg)
+
+
