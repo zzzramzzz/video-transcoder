@@ -1,0 +1,1587 @@
+{
+  "service": {
+    "service": "transcoder",
+    "serviceObject": {
+      "name": "transcoder"
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs12.x",
+      "stage": "test",
+      "profile": "pram",
+      "region": "us-east-1",
+      "deploymentBucket": "personal-tasks",
+      "transcoderPiplineId": "1608791925165-otymgv",
+      "environment": {
+        "REGION": "us-east-1",
+        "STAGE": "test",
+        "PIPELINE_ID": "1608791925165-otymgv",
+        "ACCESS_CODE": "9900"
+      },
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "lambda:*",
+            "elastictranscoder:CreateJob",
+            "ses:SendEmail",
+            "s3:*"
+          ],
+          "Resource": [
+            "*"
+          ]
+        }
+      ],
+      "variableSyntax": "\\${([^{}:]+?(?:\\(|:)(?:[^:{}][^{}]*?)?)}",
+      "versionFunctions": true,
+      "deploymentBucketObject": {
+        "name": "personal-tasks"
+      },
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "TranscodeDashvideoLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/transcoder-test-transcode-video"
+            }
+          },
+          "GetSignedUrlLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/transcoder-test-getSignedUrl"
+            }
+          },
+          "ListTranscodedFilesLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/transcoder-test-listTranscodedFiles"
+            }
+          },
+          "DispatcherLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/transcoder-test-dispatcher"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "transcoder",
+                        "test",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/transcoder-test*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/transcoder-test*:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][0]"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "transcoder",
+                    "test",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "TranscodeDashvideoLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "personal-tasks",
+                "S3Key": "serverless/transcoder/test/1608972152258-2020-12-26T08:42:32.258Z/transcode-video.zip"
+              },
+              "FunctionName": "transcoder-test-transcode-video",
+              "Handler": "transcode/transcodeVideoHandler.main",
+              "MemorySize": 512,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs12.x",
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "REGION": "us-east-1",
+                  "STAGE": "test",
+                  "PIPELINE_ID": "1608791925165-otymgv",
+                  "ACCESS_CODE": "9900"
+                }
+              }
+            },
+            "DependsOn": [
+              "TranscodeDashvideoLogGroup"
+            ]
+          },
+          "TranscodeDashvideoLambdaVersionBqBMr8KMDmIwFpHUFZCUAj9YzETTBN0Pls56MKZYm2g": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "TranscodeDashvideoLambdaFunction"
+              },
+              "CodeSha256": "gwXzIYYKnRdB1JxcD6ZUpEGk2p+G8KBPDiwUuVb0AMs="
+            }
+          },
+          "GetSignedUrlLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "personal-tasks",
+                "S3Key": "serverless/transcoder/test/1608972152258-2020-12-26T08:42:32.258Z/getSignedUrl.zip"
+              },
+              "FunctionName": "transcoder-test-getSignedUrl",
+              "Handler": "s3Handlers/getSignedUrlHandler.main",
+              "MemorySize": 128,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs12.x",
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "REGION": "us-east-1",
+                  "STAGE": "test",
+                  "PIPELINE_ID": "1608791925165-otymgv",
+                  "ACCESS_CODE": "9900"
+                }
+              }
+            },
+            "DependsOn": [
+              "GetSignedUrlLogGroup"
+            ]
+          },
+          "GetSignedUrlLambdaVersionTde1rgzQFeVDlQeAmLDyjMT3drPh0kAWfs3MQ2qfjY": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetSignedUrlLambdaFunction"
+              },
+              "CodeSha256": "gwXzIYYKnRdB1JxcD6ZUpEGk2p+G8KBPDiwUuVb0AMs="
+            }
+          },
+          "ListTranscodedFilesLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "personal-tasks",
+                "S3Key": "serverless/transcoder/test/1608972152258-2020-12-26T08:42:32.258Z/listTranscodedFiles.zip"
+              },
+              "FunctionName": "transcoder-test-listTranscodedFiles",
+              "Handler": "s3Handlers/listFilesHandler.main",
+              "MemorySize": 128,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs12.x",
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "REGION": "us-east-1",
+                  "STAGE": "test",
+                  "PIPELINE_ID": "1608791925165-otymgv",
+                  "ACCESS_CODE": "9900"
+                }
+              }
+            },
+            "DependsOn": [
+              "ListTranscodedFilesLogGroup"
+            ]
+          },
+          "ListTranscodedFilesLambdaVersionug8zK8GeNV8fwiKpLhC5sJloj7o1j9byLx0ovo": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "ListTranscodedFilesLambdaFunction"
+              },
+              "CodeSha256": "gwXzIYYKnRdB1JxcD6ZUpEGk2p+G8KBPDiwUuVb0AMs="
+            }
+          },
+          "DispatcherLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "personal-tasks",
+                "S3Key": "serverless/transcoder/test/1608972152258-2020-12-26T08:42:32.258Z/dispatcher.zip"
+              },
+              "FunctionName": "transcoder-test-dispatcher",
+              "Handler": "transcode/transcoderListener.main",
+              "MemorySize": 128,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs12.x",
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "REGION": "us-east-1",
+                  "STAGE": "test",
+                  "PIPELINE_ID": "1608791925165-otymgv",
+                  "ACCESS_CODE": "9900"
+                }
+              }
+            },
+            "DependsOn": [
+              "DispatcherLogGroup"
+            ]
+          },
+          "DispatcherLambdaVersionYZUVQEVEmef8VDDkwb36HFdZEoVA54hQRz9Pl2DvQQ": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "DispatcherLambdaFunction"
+              },
+              "CodeSha256": "AvJ5s6Ttx1QddbS514GPTmgUI4bFy2CdQiH1Ip7A9kI="
+            }
+          },
+          "TranscodeDashvideoCustomS31": {
+            "Type": "Custom::S3",
+            "Version": 1,
+            "DependsOn": [
+              "TranscodeDashvideoLambdaFunction",
+              "CustomDashresourceDashexistingDashs3LambdaFunction"
+            ],
+            "Properties": {
+              "ServiceToken": {
+                "Fn::GetAtt": [
+                  "CustomDashresourceDashexistingDashs3LambdaFunction",
+                  "Arn"
+                ]
+              },
+              "FunctionName": "transcoder-test-transcode-video",
+              "BucketName": "test-artifacts-dev",
+              "BucketConfigs": [
+                {
+                  "Event": "s3:ObjectCreated:*",
+                  "Rules": []
+                }
+              ]
+            }
+          },
+          "IamRoleCustomResourcesLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "test",
+                        "transcoder",
+                        "custom-resources-lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Resource": {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              "arn",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              "s3",
+                              "",
+                              "",
+                              "test-artifacts-dev"
+                            ]
+                          ]
+                        },
+                        "Action": [
+                          "s3:PutBucketNotification",
+                          "s3:GetBucketNotification"
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Resource": {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              "arn",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              "lambda",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              {
+                                "Ref": "AWS::AccountId"
+                              },
+                              "function",
+                              "*"
+                            ]
+                          ]
+                        },
+                        "Action": [
+                          "lambda:AddPermission",
+                          "lambda:RemovePermission"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "CustomDashresourceDashexistingDashs3LambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "personal-tasks",
+                "S3Key": "serverless/transcoder/test/1608972152258-2020-12-26T08:42:32.258Z/custom-resources.zip"
+              },
+              "FunctionName": "transcoder-test-custom-resource-existing-s3",
+              "Handler": "s3/handler.handler",
+              "MemorySize": 1024,
+              "Runtime": "nodejs12.x",
+              "Timeout": 180,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleCustomResourcesLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "IamRoleCustomResourcesLambdaExecution"
+            ]
+          },
+          "ApiGatewayRestApi": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "Properties": {
+              "Name": "test-transcoder",
+              "EndpointConfiguration": {
+                "Types": [
+                  "EDGE"
+                ]
+              },
+              "Policy": ""
+            }
+          },
+          "ApiGatewayResourceSignedDashurl": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "signed-url",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceListDashfiles": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "list-files",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodSignedDashurlOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceSignedDashurl"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodListDashfilesOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceListDashfiles"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodSignedDashurlGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceSignedDashurl"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "GetSignedUrlLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
+          "ApiGatewayMethodListDashfilesGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceListDashfiles"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "ListTranscodedFilesLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
+          "ApiGatewayDeployment1608972147830": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "Properties": {
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "StageName": "test"
+            },
+            "DependsOn": [
+              "ApiGatewayMethodSignedDashurlOptions",
+              "ApiGatewayMethodListDashfilesOptions",
+              "ApiGatewayMethodSignedDashurlGet",
+              "ApiGatewayMethodListDashfilesGet"
+            ]
+          },
+          "GetSignedUrlLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetSignedUrlLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "ListTranscodedFilesLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "ListTranscodedFilesLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "DispatcherSnsSubscriptionErrortranscoder": {
+            "Type": "AWS::SNS::Subscription",
+            "Properties": {
+              "TopicArn": "arn:aws:sns:us-east-1:991884163379:error_transcoder",
+              "Protocol": "lambda",
+              "Endpoint": {
+                "Fn::GetAtt": [
+                  "DispatcherLambdaFunction",
+                  "Arn"
+                ]
+              }
+            }
+          },
+          "DispatcherLambdaPermissionErrortranscoderSNS": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "DispatcherLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "sns.amazonaws.com",
+              "SourceArn": "arn:aws:sns:us-east-1:991884163379:error_transcoder"
+            }
+          },
+          "DispatcherSnsSubscriptionSuccesstranscoder": {
+            "Type": "AWS::SNS::Subscription",
+            "Properties": {
+              "TopicArn": "arn:aws:sns:us-east-1:991884163379:success_transcoder",
+              "Protocol": "lambda",
+              "Endpoint": {
+                "Fn::GetAtt": [
+                  "DispatcherLambdaFunction",
+                  "Arn"
+                ]
+              }
+            }
+          },
+          "DispatcherLambdaPermissionSuccesstranscoderSNS": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "DispatcherLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "sns.amazonaws.com",
+              "SourceArn": "arn:aws:sns:us-east-1:991884163379:success_transcoder"
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": "personal-tasks"
+          },
+          "TranscodeDashvideoLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "TranscodeDashvideoLambdaVersionBqBMr8KMDmIwFpHUFZCUAj9YzETTBN0Pls56MKZYm2g"
+            }
+          },
+          "GetSignedUrlLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetSignedUrlLambdaVersionTde1rgzQFeVDlQeAmLDyjMT3drPh0kAWfs3MQ2qfjY"
+            }
+          },
+          "ListTranscodedFilesLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "ListTranscodedFilesLambdaVersionug8zK8GeNV8fwiKpLhC5sJloj7o1j9byLx0ovo"
+            }
+          },
+          "DispatcherLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "DispatcherLambdaVersionYZUVQEVEmef8VDDkwb36HFdZEoVA54hQRz9Pl2DvQQ"
+            }
+          },
+          "ServiceEndpoint": {
+            "Description": "URL of the service endpoint",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "ApiGatewayRestApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  },
+                  "/test"
+                ]
+              ]
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "custom": {
+      "service": "transcoder",
+      "stage": "test",
+      "project": "task",
+      "defaultStage": "test",
+      "profiles": {
+        "test": "pram",
+        "dev": "pram",
+        "staging": "pram",
+        "prod": "pram"
+      },
+      "region": {
+        "test": "us-east-1",
+        "dev": "us-east-1",
+        "staging": "us-east-1",
+        "prod": "us-east-1"
+      },
+      "deploymentbucket": {
+        "test": "personal-tasks",
+        "dev": "personal-tasks",
+        "prod": "personal-tasks"
+      },
+      "transcoderPiplineId": {
+        "test": "1608791925165-otymgv"
+      }
+    },
+    "plugins": [
+      "serverless-plugin-include-dependencies",
+      "serverless-deployment-bucket",
+      "serverless-offline"
+    ],
+    "pluginsData": {},
+    "functions": {
+      "transcode-video": {
+        "handler": "transcode/transcodeVideoHandler.main",
+        "memorySize": 512,
+        "events": [
+          {
+            "s3": {
+              "bucket": "test-artifacts-dev",
+              "event": "s3:ObjectCreated:*",
+              "existing": true
+            }
+          }
+        ],
+        "name": "transcoder-test-transcode-video",
+        "package": {
+          "include": [
+            "transcode/transcodeVideoHandler.js",
+            "node_modules/xml2js/lib/bom.js",
+            "node_modules/xml2js/lib/builder.js",
+            "node_modules/xml2js/lib/defaults.js",
+            "node_modules/xml2js/lib/parser.js",
+            "node_modules/xml2js/lib/processors.js",
+            "node_modules/xml2js/lib/xml2js.js",
+            "node_modules/xml2js/LICENSE",
+            "node_modules/xml2js/package.json",
+            "node_modules/xml2js/README.md",
+            "node_modules/xmlbuilder/CHANGELOG.md",
+            "node_modules/xmlbuilder/lib/index.js",
+            "node_modules/xmlbuilder/lib/Utility.js",
+            "node_modules/xmlbuilder/lib/XMLAttribute.js",
+            "node_modules/xmlbuilder/lib/XMLCData.js",
+            "node_modules/xmlbuilder/lib/XMLComment.js",
+            "node_modules/xmlbuilder/lib/XMLDeclaration.js",
+            "node_modules/xmlbuilder/lib/XMLDocType.js",
+            "node_modules/xmlbuilder/lib/XMLDocument.js",
+            "node_modules/xmlbuilder/lib/XMLDocumentCB.js",
+            "node_modules/xmlbuilder/lib/XMLDTDAttList.js",
+            "node_modules/xmlbuilder/lib/XMLDTDElement.js",
+            "node_modules/xmlbuilder/lib/XMLDTDEntity.js",
+            "node_modules/xmlbuilder/lib/XMLDTDNotation.js",
+            "node_modules/xmlbuilder/lib/XMLElement.js",
+            "node_modules/xmlbuilder/lib/XMLNode.js",
+            "node_modules/xmlbuilder/lib/XMLProcessingInstruction.js",
+            "node_modules/xmlbuilder/lib/XMLRaw.js",
+            "node_modules/xmlbuilder/lib/XMLStreamWriter.js",
+            "node_modules/xmlbuilder/lib/XMLStringifier.js",
+            "node_modules/xmlbuilder/lib/XMLStringWriter.js",
+            "node_modules/xmlbuilder/lib/XMLText.js",
+            "node_modules/xmlbuilder/lib/XMLWriterBase.js",
+            "node_modules/xmlbuilder/LICENSE",
+            "node_modules/xmlbuilder/package.json",
+            "node_modules/xmlbuilder/README.md",
+            "node_modules/sax/lib/sax.js",
+            "node_modules/sax/LICENSE",
+            "node_modules/sax/LICENSE-W3C.html",
+            "node_modules/sax/package.json",
+            "node_modules/sax/README.md",
+            "node_modules/url/LICENSE",
+            "node_modules/url/package.json",
+            "node_modules/url/README.md",
+            "node_modules/url/test.js",
+            "node_modules/url/url.js",
+            "node_modules/querystring/decode.js",
+            "node_modules/querystring/encode.js",
+            "node_modules/querystring/History.md",
+            "node_modules/querystring/index.js",
+            "node_modules/querystring/License.md",
+            "node_modules/querystring/package.json",
+            "node_modules/querystring/Readme.md",
+            "node_modules/querystring/test/common-index.js",
+            "node_modules/querystring/test/index.js",
+            "node_modules/querystring/test/tap-index.js",
+            "node_modules/url/node_modules/punycode/LICENSE-MIT.txt",
+            "node_modules/url/node_modules/punycode/package.json",
+            "node_modules/url/node_modules/punycode/punycode.js",
+            "node_modules/url/node_modules/punycode/README.md",
+            "node_modules/jmespath/artifacts/jmespath.min.js",
+            "node_modules/jmespath/BASELINE",
+            "node_modules/jmespath/bower.json",
+            "node_modules/jmespath/g.sh",
+            "node_modules/jmespath/Gruntfile.js",
+            "node_modules/jmespath/index.html",
+            "node_modules/jmespath/james.html",
+            "node_modules/jmespath/jmespath.js",
+            "node_modules/jmespath/jp.js",
+            "node_modules/jmespath/l.js",
+            "node_modules/jmespath/LICENSE",
+            "node_modules/jmespath/package.json",
+            "node_modules/jmespath/perf.js",
+            "node_modules/jmespath/README.md",
+            "node_modules/jmespath/reservedWords.json",
+            "node_modules/jmespath/test/compliance.js",
+            "node_modules/jmespath/test/compliance/basic.json",
+            "node_modules/jmespath/test/compliance/boolean.json",
+            "node_modules/jmespath/test/compliance/current.json",
+            "node_modules/jmespath/test/compliance/escape.json",
+            "node_modules/jmespath/test/compliance/filters.json",
+            "node_modules/jmespath/test/compliance/functions.json",
+            "node_modules/jmespath/test/compliance/identifiers.json",
+            "node_modules/jmespath/test/compliance/indices.json",
+            "node_modules/jmespath/test/compliance/literal.json",
+            "node_modules/jmespath/test/compliance/multiselect.json",
+            "node_modules/jmespath/test/compliance/pipe.json",
+            "node_modules/jmespath/test/compliance/slice.json",
+            "node_modules/jmespath/test/compliance/syntax.json",
+            "node_modules/jmespath/test/compliance/unicode.json",
+            "node_modules/jmespath/test/compliance/wildcard.json",
+            "node_modules/jmespath/test/jmespath.js",
+            "node_modules/ieee754/index.js",
+            "node_modules/ieee754/LICENSE",
+            "node_modules/ieee754/package.json",
+            "node_modules/ieee754/README.md",
+            "node_modules/events/events.js",
+            "node_modules/events/History.md",
+            "node_modules/events/LICENSE",
+            "node_modules/events/package.json",
+            "node_modules/events/Readme.md",
+            "node_modules/events/tests/add-listeners.js",
+            "node_modules/events/tests/check-listener-leaks.js",
+            "node_modules/events/tests/common.js",
+            "node_modules/events/tests/index.js",
+            "node_modules/events/tests/legacy-compat.js",
+            "node_modules/events/tests/listener-count.js",
+            "node_modules/events/tests/listeners-side-effects.js",
+            "node_modules/events/tests/listeners.js",
+            "node_modules/events/tests/max-listeners.js",
+            "node_modules/events/tests/modify-in-emit.js",
+            "node_modules/events/tests/num-args.js",
+            "node_modules/events/tests/once.js",
+            "node_modules/events/tests/remove-all-listeners.js",
+            "node_modules/events/tests/remove-listeners.js",
+            "node_modules/events/tests/set-max-listeners-side-effects.js",
+            "node_modules/events/tests/subclass.js",
+            "node_modules/base64-js/base64js.min.js",
+            "node_modules/base64-js/index.js",
+            "node_modules/base64-js/LICENSE",
+            "node_modules/base64-js/package.json",
+            "node_modules/base64-js/README.md"
+          ],
+          "artifact": "/home/ram/task-esrtech/transcoder-backend/.serverless/transcode-video.zip"
+        },
+        "memory": 512,
+        "timeout": 6,
+        "runtime": "nodejs12.x",
+        "vpc": {},
+        "versionLogicalId": "TranscodeDashvideoLambdaVersionBqBMr8KMDmIwFpHUFZCUAj9YzETTBN0Pls56MKZYm2g"
+      },
+      "getSignedUrl": {
+        "handler": "s3Handlers/getSignedUrlHandler.main",
+        "memorySize": 128,
+        "events": [
+          {
+            "http": {
+              "path": "signed-url",
+              "method": "get",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "transcoder-test-getSignedUrl",
+        "package": {
+          "include": [
+            "s3Handlers/getSignedUrlHandler.js",
+            "utils/responseUtil.js",
+            "node_modules/xml2js/lib/bom.js",
+            "node_modules/xml2js/lib/builder.js",
+            "node_modules/xml2js/lib/defaults.js",
+            "node_modules/xml2js/lib/parser.js",
+            "node_modules/xml2js/lib/processors.js",
+            "node_modules/xml2js/lib/xml2js.js",
+            "node_modules/xml2js/LICENSE",
+            "node_modules/xml2js/package.json",
+            "node_modules/xml2js/README.md",
+            "node_modules/xmlbuilder/CHANGELOG.md",
+            "node_modules/xmlbuilder/lib/index.js",
+            "node_modules/xmlbuilder/lib/Utility.js",
+            "node_modules/xmlbuilder/lib/XMLAttribute.js",
+            "node_modules/xmlbuilder/lib/XMLCData.js",
+            "node_modules/xmlbuilder/lib/XMLComment.js",
+            "node_modules/xmlbuilder/lib/XMLDeclaration.js",
+            "node_modules/xmlbuilder/lib/XMLDocType.js",
+            "node_modules/xmlbuilder/lib/XMLDocument.js",
+            "node_modules/xmlbuilder/lib/XMLDocumentCB.js",
+            "node_modules/xmlbuilder/lib/XMLDTDAttList.js",
+            "node_modules/xmlbuilder/lib/XMLDTDElement.js",
+            "node_modules/xmlbuilder/lib/XMLDTDEntity.js",
+            "node_modules/xmlbuilder/lib/XMLDTDNotation.js",
+            "node_modules/xmlbuilder/lib/XMLElement.js",
+            "node_modules/xmlbuilder/lib/XMLNode.js",
+            "node_modules/xmlbuilder/lib/XMLProcessingInstruction.js",
+            "node_modules/xmlbuilder/lib/XMLRaw.js",
+            "node_modules/xmlbuilder/lib/XMLStreamWriter.js",
+            "node_modules/xmlbuilder/lib/XMLStringifier.js",
+            "node_modules/xmlbuilder/lib/XMLStringWriter.js",
+            "node_modules/xmlbuilder/lib/XMLText.js",
+            "node_modules/xmlbuilder/lib/XMLWriterBase.js",
+            "node_modules/xmlbuilder/LICENSE",
+            "node_modules/xmlbuilder/package.json",
+            "node_modules/xmlbuilder/README.md",
+            "node_modules/sax/lib/sax.js",
+            "node_modules/sax/LICENSE",
+            "node_modules/sax/LICENSE-W3C.html",
+            "node_modules/sax/package.json",
+            "node_modules/sax/README.md",
+            "node_modules/url/LICENSE",
+            "node_modules/url/package.json",
+            "node_modules/url/README.md",
+            "node_modules/url/test.js",
+            "node_modules/url/url.js",
+            "node_modules/querystring/decode.js",
+            "node_modules/querystring/encode.js",
+            "node_modules/querystring/History.md",
+            "node_modules/querystring/index.js",
+            "node_modules/querystring/License.md",
+            "node_modules/querystring/package.json",
+            "node_modules/querystring/Readme.md",
+            "node_modules/querystring/test/common-index.js",
+            "node_modules/querystring/test/index.js",
+            "node_modules/querystring/test/tap-index.js",
+            "node_modules/url/node_modules/punycode/LICENSE-MIT.txt",
+            "node_modules/url/node_modules/punycode/package.json",
+            "node_modules/url/node_modules/punycode/punycode.js",
+            "node_modules/url/node_modules/punycode/README.md",
+            "node_modules/jmespath/artifacts/jmespath.min.js",
+            "node_modules/jmespath/BASELINE",
+            "node_modules/jmespath/bower.json",
+            "node_modules/jmespath/g.sh",
+            "node_modules/jmespath/Gruntfile.js",
+            "node_modules/jmespath/index.html",
+            "node_modules/jmespath/james.html",
+            "node_modules/jmespath/jmespath.js",
+            "node_modules/jmespath/jp.js",
+            "node_modules/jmespath/l.js",
+            "node_modules/jmespath/LICENSE",
+            "node_modules/jmespath/package.json",
+            "node_modules/jmespath/perf.js",
+            "node_modules/jmespath/README.md",
+            "node_modules/jmespath/reservedWords.json",
+            "node_modules/jmespath/test/compliance.js",
+            "node_modules/jmespath/test/compliance/basic.json",
+            "node_modules/jmespath/test/compliance/boolean.json",
+            "node_modules/jmespath/test/compliance/current.json",
+            "node_modules/jmespath/test/compliance/escape.json",
+            "node_modules/jmespath/test/compliance/filters.json",
+            "node_modules/jmespath/test/compliance/functions.json",
+            "node_modules/jmespath/test/compliance/identifiers.json",
+            "node_modules/jmespath/test/compliance/indices.json",
+            "node_modules/jmespath/test/compliance/literal.json",
+            "node_modules/jmespath/test/compliance/multiselect.json",
+            "node_modules/jmespath/test/compliance/pipe.json",
+            "node_modules/jmespath/test/compliance/slice.json",
+            "node_modules/jmespath/test/compliance/syntax.json",
+            "node_modules/jmespath/test/compliance/unicode.json",
+            "node_modules/jmespath/test/compliance/wildcard.json",
+            "node_modules/jmespath/test/jmespath.js",
+            "node_modules/ieee754/index.js",
+            "node_modules/ieee754/LICENSE",
+            "node_modules/ieee754/package.json",
+            "node_modules/ieee754/README.md",
+            "node_modules/events/events.js",
+            "node_modules/events/History.md",
+            "node_modules/events/LICENSE",
+            "node_modules/events/package.json",
+            "node_modules/events/Readme.md",
+            "node_modules/events/tests/add-listeners.js",
+            "node_modules/events/tests/check-listener-leaks.js",
+            "node_modules/events/tests/common.js",
+            "node_modules/events/tests/index.js",
+            "node_modules/events/tests/legacy-compat.js",
+            "node_modules/events/tests/listener-count.js",
+            "node_modules/events/tests/listeners-side-effects.js",
+            "node_modules/events/tests/listeners.js",
+            "node_modules/events/tests/max-listeners.js",
+            "node_modules/events/tests/modify-in-emit.js",
+            "node_modules/events/tests/num-args.js",
+            "node_modules/events/tests/once.js",
+            "node_modules/events/tests/remove-all-listeners.js",
+            "node_modules/events/tests/remove-listeners.js",
+            "node_modules/events/tests/set-max-listeners-side-effects.js",
+            "node_modules/events/tests/subclass.js",
+            "node_modules/base64-js/base64js.min.js",
+            "node_modules/base64-js/index.js",
+            "node_modules/base64-js/LICENSE",
+            "node_modules/base64-js/package.json",
+            "node_modules/base64-js/README.md"
+          ],
+          "artifact": "/home/ram/task-esrtech/transcoder-backend/.serverless/getSignedUrl.zip"
+        },
+        "memory": 128,
+        "timeout": 6,
+        "runtime": "nodejs12.x",
+        "vpc": {},
+        "versionLogicalId": "GetSignedUrlLambdaVersionTde1rgzQFeVDlQeAmLDyjMT3drPh0kAWfs3MQ2qfjY"
+      },
+      "listTranscodedFiles": {
+        "handler": "s3Handlers/listFilesHandler.main",
+        "memorySize": 128,
+        "events": [
+          {
+            "http": {
+              "path": "list-files",
+              "method": "get",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "transcoder-test-listTranscodedFiles",
+        "package": {
+          "include": [
+            "s3Handlers/listFilesHandler.js",
+            "utils/responseUtil.js",
+            "node_modules/xml2js/lib/bom.js",
+            "node_modules/xml2js/lib/builder.js",
+            "node_modules/xml2js/lib/defaults.js",
+            "node_modules/xml2js/lib/parser.js",
+            "node_modules/xml2js/lib/processors.js",
+            "node_modules/xml2js/lib/xml2js.js",
+            "node_modules/xml2js/LICENSE",
+            "node_modules/xml2js/package.json",
+            "node_modules/xml2js/README.md",
+            "node_modules/xmlbuilder/CHANGELOG.md",
+            "node_modules/xmlbuilder/lib/index.js",
+            "node_modules/xmlbuilder/lib/Utility.js",
+            "node_modules/xmlbuilder/lib/XMLAttribute.js",
+            "node_modules/xmlbuilder/lib/XMLCData.js",
+            "node_modules/xmlbuilder/lib/XMLComment.js",
+            "node_modules/xmlbuilder/lib/XMLDeclaration.js",
+            "node_modules/xmlbuilder/lib/XMLDocType.js",
+            "node_modules/xmlbuilder/lib/XMLDocument.js",
+            "node_modules/xmlbuilder/lib/XMLDocumentCB.js",
+            "node_modules/xmlbuilder/lib/XMLDTDAttList.js",
+            "node_modules/xmlbuilder/lib/XMLDTDElement.js",
+            "node_modules/xmlbuilder/lib/XMLDTDEntity.js",
+            "node_modules/xmlbuilder/lib/XMLDTDNotation.js",
+            "node_modules/xmlbuilder/lib/XMLElement.js",
+            "node_modules/xmlbuilder/lib/XMLNode.js",
+            "node_modules/xmlbuilder/lib/XMLProcessingInstruction.js",
+            "node_modules/xmlbuilder/lib/XMLRaw.js",
+            "node_modules/xmlbuilder/lib/XMLStreamWriter.js",
+            "node_modules/xmlbuilder/lib/XMLStringifier.js",
+            "node_modules/xmlbuilder/lib/XMLStringWriter.js",
+            "node_modules/xmlbuilder/lib/XMLText.js",
+            "node_modules/xmlbuilder/lib/XMLWriterBase.js",
+            "node_modules/xmlbuilder/LICENSE",
+            "node_modules/xmlbuilder/package.json",
+            "node_modules/xmlbuilder/README.md",
+            "node_modules/sax/lib/sax.js",
+            "node_modules/sax/LICENSE",
+            "node_modules/sax/LICENSE-W3C.html",
+            "node_modules/sax/package.json",
+            "node_modules/sax/README.md",
+            "node_modules/url/LICENSE",
+            "node_modules/url/package.json",
+            "node_modules/url/README.md",
+            "node_modules/url/test.js",
+            "node_modules/url/url.js",
+            "node_modules/querystring/decode.js",
+            "node_modules/querystring/encode.js",
+            "node_modules/querystring/History.md",
+            "node_modules/querystring/index.js",
+            "node_modules/querystring/License.md",
+            "node_modules/querystring/package.json",
+            "node_modules/querystring/Readme.md",
+            "node_modules/querystring/test/common-index.js",
+            "node_modules/querystring/test/index.js",
+            "node_modules/querystring/test/tap-index.js",
+            "node_modules/url/node_modules/punycode/LICENSE-MIT.txt",
+            "node_modules/url/node_modules/punycode/package.json",
+            "node_modules/url/node_modules/punycode/punycode.js",
+            "node_modules/url/node_modules/punycode/README.md",
+            "node_modules/jmespath/artifacts/jmespath.min.js",
+            "node_modules/jmespath/BASELINE",
+            "node_modules/jmespath/bower.json",
+            "node_modules/jmespath/g.sh",
+            "node_modules/jmespath/Gruntfile.js",
+            "node_modules/jmespath/index.html",
+            "node_modules/jmespath/james.html",
+            "node_modules/jmespath/jmespath.js",
+            "node_modules/jmespath/jp.js",
+            "node_modules/jmespath/l.js",
+            "node_modules/jmespath/LICENSE",
+            "node_modules/jmespath/package.json",
+            "node_modules/jmespath/perf.js",
+            "node_modules/jmespath/README.md",
+            "node_modules/jmespath/reservedWords.json",
+            "node_modules/jmespath/test/compliance.js",
+            "node_modules/jmespath/test/compliance/basic.json",
+            "node_modules/jmespath/test/compliance/boolean.json",
+            "node_modules/jmespath/test/compliance/current.json",
+            "node_modules/jmespath/test/compliance/escape.json",
+            "node_modules/jmespath/test/compliance/filters.json",
+            "node_modules/jmespath/test/compliance/functions.json",
+            "node_modules/jmespath/test/compliance/identifiers.json",
+            "node_modules/jmespath/test/compliance/indices.json",
+            "node_modules/jmespath/test/compliance/literal.json",
+            "node_modules/jmespath/test/compliance/multiselect.json",
+            "node_modules/jmespath/test/compliance/pipe.json",
+            "node_modules/jmespath/test/compliance/slice.json",
+            "node_modules/jmespath/test/compliance/syntax.json",
+            "node_modules/jmespath/test/compliance/unicode.json",
+            "node_modules/jmespath/test/compliance/wildcard.json",
+            "node_modules/jmespath/test/jmespath.js",
+            "node_modules/ieee754/index.js",
+            "node_modules/ieee754/LICENSE",
+            "node_modules/ieee754/package.json",
+            "node_modules/ieee754/README.md",
+            "node_modules/events/events.js",
+            "node_modules/events/History.md",
+            "node_modules/events/LICENSE",
+            "node_modules/events/package.json",
+            "node_modules/events/Readme.md",
+            "node_modules/events/tests/add-listeners.js",
+            "node_modules/events/tests/check-listener-leaks.js",
+            "node_modules/events/tests/common.js",
+            "node_modules/events/tests/index.js",
+            "node_modules/events/tests/legacy-compat.js",
+            "node_modules/events/tests/listener-count.js",
+            "node_modules/events/tests/listeners-side-effects.js",
+            "node_modules/events/tests/listeners.js",
+            "node_modules/events/tests/max-listeners.js",
+            "node_modules/events/tests/modify-in-emit.js",
+            "node_modules/events/tests/num-args.js",
+            "node_modules/events/tests/once.js",
+            "node_modules/events/tests/remove-all-listeners.js",
+            "node_modules/events/tests/remove-listeners.js",
+            "node_modules/events/tests/set-max-listeners-side-effects.js",
+            "node_modules/events/tests/subclass.js",
+            "node_modules/base64-js/base64js.min.js",
+            "node_modules/base64-js/index.js",
+            "node_modules/base64-js/LICENSE",
+            "node_modules/base64-js/package.json",
+            "node_modules/base64-js/README.md"
+          ],
+          "artifact": "/home/ram/task-esrtech/transcoder-backend/.serverless/listTranscodedFiles.zip"
+        },
+        "memory": 128,
+        "timeout": 6,
+        "runtime": "nodejs12.x",
+        "vpc": {},
+        "versionLogicalId": "ListTranscodedFilesLambdaVersionug8zK8GeNV8fwiKpLhC5sJloj7o1j9byLx0ovo"
+      },
+      "dispatcher": {
+        "handler": "transcode/transcoderListener.main",
+        "memorySize": 128,
+        "events": [
+          {
+            "sns": {
+              "arn": "arn:aws:sns:us-east-1:991884163379:error_transcoder"
+            }
+          },
+          {
+            "sns": {
+              "arn": "arn:aws:sns:us-east-1:991884163379:success_transcoder"
+            }
+          }
+        ],
+        "name": "transcoder-test-dispatcher",
+        "package": {
+          "include": [
+            "transcode/transcoderListener.js",
+            "email-template/notification-template.js",
+            "utils/email.js",
+            "node_modules/xml2js/lib/bom.js",
+            "node_modules/xml2js/lib/builder.js",
+            "node_modules/xml2js/lib/defaults.js",
+            "node_modules/xml2js/lib/parser.js",
+            "node_modules/xml2js/lib/processors.js",
+            "node_modules/xml2js/lib/xml2js.js",
+            "node_modules/xml2js/LICENSE",
+            "node_modules/xml2js/package.json",
+            "node_modules/xml2js/README.md",
+            "node_modules/xmlbuilder/CHANGELOG.md",
+            "node_modules/xmlbuilder/lib/index.js",
+            "node_modules/xmlbuilder/lib/Utility.js",
+            "node_modules/xmlbuilder/lib/XMLAttribute.js",
+            "node_modules/xmlbuilder/lib/XMLCData.js",
+            "node_modules/xmlbuilder/lib/XMLComment.js",
+            "node_modules/xmlbuilder/lib/XMLDeclaration.js",
+            "node_modules/xmlbuilder/lib/XMLDocType.js",
+            "node_modules/xmlbuilder/lib/XMLDocument.js",
+            "node_modules/xmlbuilder/lib/XMLDocumentCB.js",
+            "node_modules/xmlbuilder/lib/XMLDTDAttList.js",
+            "node_modules/xmlbuilder/lib/XMLDTDElement.js",
+            "node_modules/xmlbuilder/lib/XMLDTDEntity.js",
+            "node_modules/xmlbuilder/lib/XMLDTDNotation.js",
+            "node_modules/xmlbuilder/lib/XMLElement.js",
+            "node_modules/xmlbuilder/lib/XMLNode.js",
+            "node_modules/xmlbuilder/lib/XMLProcessingInstruction.js",
+            "node_modules/xmlbuilder/lib/XMLRaw.js",
+            "node_modules/xmlbuilder/lib/XMLStreamWriter.js",
+            "node_modules/xmlbuilder/lib/XMLStringifier.js",
+            "node_modules/xmlbuilder/lib/XMLStringWriter.js",
+            "node_modules/xmlbuilder/lib/XMLText.js",
+            "node_modules/xmlbuilder/lib/XMLWriterBase.js",
+            "node_modules/xmlbuilder/LICENSE",
+            "node_modules/xmlbuilder/package.json",
+            "node_modules/xmlbuilder/README.md",
+            "node_modules/sax/lib/sax.js",
+            "node_modules/sax/LICENSE",
+            "node_modules/sax/LICENSE-W3C.html",
+            "node_modules/sax/package.json",
+            "node_modules/sax/README.md",
+            "node_modules/url/LICENSE",
+            "node_modules/url/package.json",
+            "node_modules/url/README.md",
+            "node_modules/url/test.js",
+            "node_modules/url/url.js",
+            "node_modules/querystring/decode.js",
+            "node_modules/querystring/encode.js",
+            "node_modules/querystring/History.md",
+            "node_modules/querystring/index.js",
+            "node_modules/querystring/License.md",
+            "node_modules/querystring/package.json",
+            "node_modules/querystring/Readme.md",
+            "node_modules/querystring/test/common-index.js",
+            "node_modules/querystring/test/index.js",
+            "node_modules/querystring/test/tap-index.js",
+            "node_modules/url/node_modules/punycode/LICENSE-MIT.txt",
+            "node_modules/url/node_modules/punycode/package.json",
+            "node_modules/url/node_modules/punycode/punycode.js",
+            "node_modules/url/node_modules/punycode/README.md",
+            "node_modules/jmespath/artifacts/jmespath.min.js",
+            "node_modules/jmespath/BASELINE",
+            "node_modules/jmespath/bower.json",
+            "node_modules/jmespath/g.sh",
+            "node_modules/jmespath/Gruntfile.js",
+            "node_modules/jmespath/index.html",
+            "node_modules/jmespath/james.html",
+            "node_modules/jmespath/jmespath.js",
+            "node_modules/jmespath/jp.js",
+            "node_modules/jmespath/l.js",
+            "node_modules/jmespath/LICENSE",
+            "node_modules/jmespath/package.json",
+            "node_modules/jmespath/perf.js",
+            "node_modules/jmespath/README.md",
+            "node_modules/jmespath/reservedWords.json",
+            "node_modules/jmespath/test/compliance.js",
+            "node_modules/jmespath/test/compliance/basic.json",
+            "node_modules/jmespath/test/compliance/boolean.json",
+            "node_modules/jmespath/test/compliance/current.json",
+            "node_modules/jmespath/test/compliance/escape.json",
+            "node_modules/jmespath/test/compliance/filters.json",
+            "node_modules/jmespath/test/compliance/functions.json",
+            "node_modules/jmespath/test/compliance/identifiers.json",
+            "node_modules/jmespath/test/compliance/indices.json",
+            "node_modules/jmespath/test/compliance/literal.json",
+            "node_modules/jmespath/test/compliance/multiselect.json",
+            "node_modules/jmespath/test/compliance/pipe.json",
+            "node_modules/jmespath/test/compliance/slice.json",
+            "node_modules/jmespath/test/compliance/syntax.json",
+            "node_modules/jmespath/test/compliance/unicode.json",
+            "node_modules/jmespath/test/compliance/wildcard.json",
+            "node_modules/jmespath/test/jmespath.js",
+            "node_modules/ieee754/index.js",
+            "node_modules/ieee754/LICENSE",
+            "node_modules/ieee754/package.json",
+            "node_modules/ieee754/README.md",
+            "node_modules/events/events.js",
+            "node_modules/events/History.md",
+            "node_modules/events/LICENSE",
+            "node_modules/events/package.json",
+            "node_modules/events/Readme.md",
+            "node_modules/events/tests/add-listeners.js",
+            "node_modules/events/tests/check-listener-leaks.js",
+            "node_modules/events/tests/common.js",
+            "node_modules/events/tests/index.js",
+            "node_modules/events/tests/legacy-compat.js",
+            "node_modules/events/tests/listener-count.js",
+            "node_modules/events/tests/listeners-side-effects.js",
+            "node_modules/events/tests/listeners.js",
+            "node_modules/events/tests/max-listeners.js",
+            "node_modules/events/tests/modify-in-emit.js",
+            "node_modules/events/tests/num-args.js",
+            "node_modules/events/tests/once.js",
+            "node_modules/events/tests/remove-all-listeners.js",
+            "node_modules/events/tests/remove-listeners.js",
+            "node_modules/events/tests/set-max-listeners-side-effects.js",
+            "node_modules/events/tests/subclass.js",
+            "node_modules/base64-js/base64js.min.js",
+            "node_modules/base64-js/index.js",
+            "node_modules/base64-js/LICENSE",
+            "node_modules/base64-js/package.json",
+            "node_modules/base64-js/README.md",
+            "node_modules/mustache/bin/mustache",
+            "node_modules/mustache/CHANGELOG.md",
+            "node_modules/mustache/LICENSE",
+            "node_modules/mustache/mustache.js",
+            "node_modules/mustache/mustache.min.js",
+            "node_modules/mustache/mustache.mjs",
+            "node_modules/mustache/package.json",
+            "node_modules/mustache/README.md",
+            "node_modules/mustache/wrappers/dojo/mustache.js.post",
+            "node_modules/mustache/wrappers/dojo/mustache.js.pre",
+            "node_modules/mustache/wrappers/jquery/mustache.js.post",
+            "node_modules/mustache/wrappers/jquery/mustache.js.pre",
+            "node_modules/mustache/wrappers/mootools/mustache.js.post",
+            "node_modules/mustache/wrappers/mootools/mustache.js.pre",
+            "node_modules/mustache/wrappers/qooxdoo/mustache.js.post",
+            "node_modules/mustache/wrappers/qooxdoo/mustache.js.pre",
+            "node_modules/mustache/wrappers/yui3/mustache.js.post",
+            "node_modules/mustache/wrappers/yui3/mustache.js.pre"
+          ],
+          "artifact": "/home/ram/task-esrtech/transcoder-backend/.serverless/dispatcher.zip"
+        },
+        "memory": 128,
+        "timeout": 6,
+        "runtime": "nodejs12.x",
+        "vpc": {},
+        "versionLogicalId": "DispatcherLambdaVersionYZUVQEVEmef8VDDkwb36HFdZEoVA54hQRz9Pl2DvQQ"
+      }
+    },
+    "configValidationMode": "warn",
+    "serviceFilename": "serverless.yml",
+    "layers": {},
+    "initialServerlessConfig": {
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
+      },
+      "custom": {
+        "$ref": "$[\"service\"][\"custom\"]"
+      },
+      "provider": {
+        "$ref": "$[\"service\"][\"provider\"]"
+      },
+      "service": {
+        "$ref": "$[\"service\"][\"serviceObject\"]"
+      },
+      "package": {
+        "individually": true,
+        "exclude": [
+          "node_modules/**",
+          "package.json",
+          "package-lock.json",
+          "node_modules/**/aws-sdk/**"
+        ],
+        "deploymentBucket": "personal-tasks",
+        "artifactDirectoryName": "serverless/transcoder/test/1608972152258-2020-12-26T08:42:32.258Z"
+      },
+      "functions": {
+        "$ref": "$[\"service\"][\"functions\"]"
+      }
+    },
+    "isDashboardMonitoringPreconfigured": false
+  },
+  "package": {
+    "individually": true,
+    "artifactDirectoryName": "serverless/transcoder/test/1608972152258-2020-12-26T08:42:32.258Z",
+    "artifact": ""
+  }
+}

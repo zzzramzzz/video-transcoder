@@ -53,6 +53,7 @@ provider:
         - lambda:*
         - elastictranscoder:CreateJob
         - ses:SendEmail
+        - s3:*
       Resource:
         - "*"
 
@@ -82,6 +83,14 @@ functions:
     events:
       - http:
           path: signed-url
+          method: get
+          cors: true
+  listTranscodedFiles:
+    handler: s3Handlers/listFilesHandler.main
+    memorySize: 128
+    events:
+      - http:
+          path: list-files
           method: get
           cors: true
   dispatcher:

@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 
 const url = "";
-export default function Page2() {
+export default function Page2({ goNextPage }) {
   const [videoFile, setVideoFile] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
@@ -71,7 +71,6 @@ export default function Page2() {
           })
             .then((response) => {
               setLoading(false);
-
               console.log(response, "check response from s3");
             })
             .catch((err) => {
@@ -156,6 +155,8 @@ export default function Page2() {
         </div>
       )}
       {info && <p>{info}</p>}
+
+      <button onClick={goNextPage}>List files</button>
     </div>
   );
 }
