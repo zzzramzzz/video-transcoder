@@ -12,7 +12,7 @@ http://transcoder-deployment-bucket.s3-website-us-east-1.amazonaws.com
 
 ## TO DEPLOY serverless backend
 
-sls deploy --stage <STAGE>
+sls deploy --stage <>
 
 #Architectural diagram:
 ![](images/Video%20Transcode$20Architectural%20Diagram.jpeg)
